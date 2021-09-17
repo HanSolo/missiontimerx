@@ -1,0 +1,89 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath 'com.google.gradle:osdetector-gradle-plugin:1.7.0'
+        classpath 'org.javamodularity:moduleplugin:1.8.8'
+        classpath 'org.beryx:badass-jlink-plugin:2.4.1'
+    }
+}
+
+plugins {
+    id 'java-library'
+    id 'application'
+    id 'com.google.osdetector' version '1.7.0'
+    id 'org.javamodularity.moduleplugin' version '1.8.8'
+    id 'org.beryx.jlink' version '2.24.1'
+}
+
+ext.platform = osdetector.os == 'osx' ? 'mac' : osdetector.os == 'windows' ? 'win' : osdetector.os
+
+normalization {
+    runtimeClasspath {
+        ignore('/META-INF/MANIFEST.MF')
+    }
+}
+
+repositories {
+    mavenCentral()
+    flatDir {
+        dirs 'libs'
+    }
+}
+
+dependencies {
+    implementation 'com.google.gradle:osdetector-gradle-plugin:1.7.0'
+    implementation "org.openjfx:javafx-base:${javafxVersion}:${platform}"
+    implementation "org.openjfx:javafx-graphics:${javafxVersion}:${platform}"
+    implementation "org.openjfx:javafx-controls:${javafxVersion}:${platform}"
+}
+
+mainClassName = '$moduleName/eu.hansolo.fx.missiontimerx.Launcher'
+ext.moduleName = 'eu.hansolo.fx.missiontimerx'
+//mainClassName = 'eu.hansolo.fx.missiontimerx.Launcher'
+
+jar {
+    from {
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+        configurations.runtimeClasspath.collect {  it.isDirectory() ? it : zipTree(it)  }
+    } {
+        exclude "META-INF/*.SF"
+        exclude "META-INF/*.DSA"
+        exclude "META-INF/*.RSA"
+    }
+    manifest {
+        attributes(
+                'Implementation-Title': 'JDKMon',
+                'Class-Path': 'missiontimerx-11.0.0.jar',
+                'Main-Class': 'eu.hansolo.fx.missiontimerx.Launcher'
+        )
+    }
+}
+
+// start the from gradle
+task Main(type: JavaExec) {
+    main = "eu.hansolo.fx.missiontimerx.Launcher"
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+// Fix problems with loading resources
+sourceSets {
+    main {
+        output.setResourcesDir(java.outputDir)
+    }
+}
+
+run {
+    inputs.property("moduleName", moduleName)
+    doFirst {
+        jvmArgs = [
+                '--module-path', classpath.asPath,
+                '--module', mainClassName
+        ]
+        classpath = files()
+    }
+}
