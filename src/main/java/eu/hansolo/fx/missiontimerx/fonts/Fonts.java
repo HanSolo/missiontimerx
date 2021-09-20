@@ -21,12 +21,14 @@ import javafx.scene.text.Font;
 
 public class Fonts {
     private static final String DIN_BEK_MEDIUM_NAME;
-    private static String dinBekMediumName;
+    private static       String dinBekMediumName;
+
 
     static {
         try {
             dinBekMediumName = Font.loadFont(Fonts.class.getResourceAsStream("/eu/hansolo/fx/missiontimerx/fonts/DINbek Medium.ttf"), 10).getName();
         } catch (Exception exception) { }
+
         DIN_BEK_MEDIUM_NAME = dinBekMediumName;
     }
 

@@ -20,19 +20,24 @@ package eu.hansolo.fx.missiontimerx;
 public class Item {
     private long    time;
     private String  name;
+    private boolean processed;
     private boolean up;
 
 
     public Item(final long time, final String name) {
-        this.time = time;
-        this.name = name;
-        this.up   = true;
+        this.time      = time;
+        this.name      = name;
+        this.processed = false;
+        this.up        = true;
     }
 
 
     public long getTime() { return time; }
 
     public String getName() { return name; }
+
+    public boolean isProcessed() { return processed; }
+    public void setProcessed(final boolean processed) { this.processed = processed; }
 
     public boolean isUp() { return up; }
     public void setUp(final boolean up) { this.up = up; }

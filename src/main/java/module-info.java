@@ -10,5 +10,6 @@ module eu.hansolo.fx.missiontimerx {
     requires javafx.controls;
 
     exports eu.hansolo.fx.missiontimerx;
+    exports eu.hansolo.fx.missiontimerx.events;
     exports eu.hansolo.fx.missiontimerx.fonts;
 }

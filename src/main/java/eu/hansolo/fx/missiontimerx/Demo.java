@@ -16,10 +16,10 @@
 
 package eu.hansolo.fx.missiontimerx;
 
+import eu.hansolo.fx.missiontimerx.events.MissionTimerXEvent;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
@@ -33,14 +33,20 @@ public class Demo extends Application {
     @Override public void init() {
 
         missionTimerX = MissionTimerXBuilder.create()
-                                             .title("MISSION")
+                                            .title("INSPIRATION4")
                                             .startTime(-Duration.ofMinutes(5).getSeconds())
                                             .timeFrame(Duration.ofMinutes(20).getSeconds())
                                             .items(new Item(-Duration.ofMinutes(6).getSeconds(), "ENGINE CHILL"),
-                                                   new Item(-Duration.ofMinutes(3).getSeconds(), "STONGBACK\nRETRACT"),
+                                                   new Item(-Duration.ofMinutes(3).getSeconds(), "STRONGBACK\nRETRACT"),
                                                    new Item(-Duration.ofMinutes(0).getSeconds(), "LIFTOFF"),
                                                    new Item(Duration.ofMinutes(5).getSeconds(), "MAX-Q"))
                                             .build();
+
+        registerListeners();
+    }
+
+    private void registerListeners() {
+        missionTimerX.addEventHandler(MissionTimerXEvent.TRIGGERED, e -> System.out.println("Item: " + e.getItem().getName() + " processed"));
     }
 
     @Override public void start(final Stage stage) {

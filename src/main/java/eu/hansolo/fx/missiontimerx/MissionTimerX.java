@@ -16,6 +16,7 @@
 
  package eu.hansolo.fx.missiontimerx;
 
+ import eu.hansolo.fx.missiontimerx.events.MissionTimerXEvent;
  import eu.hansolo.fx.missiontimerx.fonts.Fonts;
  import javafx.animation.AnimationTimer;
  import javafx.beans.DefaultProperty;
@@ -173,6 +174,7 @@
              for (Item item : items) {
                  item.setUp(itemToggle);
                  itemToggle = !itemToggle;
+                 if (getStartTime() + duration >= + item.getTime()) { item.setProcessed(true); }
              }
              redraw();
          };
@@ -572,6 +574,7 @@
              double itemAngle = -getStartTime() * angleStep + (item.getTime() * angleStep) - duration * angleStep - milliAngle;
              if (itemAngle > -35 && itemAngle < 35) {
                  ctx.save();
+
                  ctx.translate(centerX, centerY);
                  ctx.rotate(itemAngle);
                  ctx.translate(-centerX, -centerY);
@@ -609,7 +612,11 @@
                  ctx.setStroke(itemColor);
                  ctx.strokeOval(centerX - itemRadius, middleOriginY - itemRadius, itemDiameter, itemDiameter);
 
-                 if (itemAngle < 0) {
+                 if (getStartTime() + (duration - 1) >= + item.getTime()) {
+                     if (!item.isProcessed()) {
+                         item.setProcessed(true);
+                         fireEvent(new MissionTimerXEvent(item, MissionTimerX.this, null, MissionTimerXEvent.TRIGGERED));
+                     }
                      ctx.setFill(getItemColor());
                      ctx.fillOval(centerX - itemDotRadius, middleOriginY - itemDotRadius, itemDotDiameter, itemDotDiameter);
                  }
