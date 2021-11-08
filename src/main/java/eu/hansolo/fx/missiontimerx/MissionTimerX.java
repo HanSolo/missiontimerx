@@ -541,19 +541,23 @@
      private void redraw() {
          ctx.clearRect(0, 0, width, height);
 
+         // Draw outer background circle
          ctx.setFill(getRingBackgroundColor());
          ctx.fillOval(outerOriginX, outerOriginY, outerCircleDiameter, outerCircleDiameter);
 
+         // Stroke timeline ring
          ctx.setStroke(getRingColor());
          ctx.setLineWidth(width * 0.0025);
          ctx.strokeOval(middleOriginX, middleOriginY, middleCircleDiameter, middleCircleDiameter);
 
+         // Draw inner background circle
          ctx.setFill(getBackgroundColor());
          ctx.fillOval(innerOriginX, innerOriginY, innerCircleDiameter, innerCircleDiameter);
 
          ctx.setLineWidth(width * 0.0025);
          ctx.strokeOval(innerOriginX, innerOriginY, innerCircleDiameter, innerCircleDiameter);
 
+         // Draw Completed arc
          ctx.setStroke(getItemColor());
          ctx.strokeArc(middleOriginX, middleOriginY, middleCircleDiameter, middleCircleDiameter, 90, 90, ArcType.OPEN);
          ctx.strokeLine(centerX, middleOriginY - width * 0.0025, centerX, middleOriginY + width * 0.0025);
@@ -561,28 +565,35 @@
          ctx.setTextAlign(TextAlignment.CENTER);
          ctx.setTextBaseline(VPos.CENTER);
 
+         // Draw timer clock
          ctx.setFill(getClockColor());
          ctx.setFont(clockFont);
          ctx.fillText(new StringBuilder().append("T ").append(getStartTime() + duration > 0 ? "+" : "-").append(" ").append(0 == days ? "" : days).append(0 == days ? "" : ":").append(String.format("%02d", hours)).append(":").append(String.format("%02d", minutes)).append(":").append(0 == days ? String.format("%02d", seconds) : "").toString(), centerX, height * 0.6804878);
 
+         // Draw title
          ctx.setFill(getTitleColor());
          ctx.setFont(titleFont);
          ctx.fillText(getTitle(), centerX, height * 0.83658537);
 
+         // Iterate over all items
          ctx.setFont(itemFont);
          items.forEach(item -> {
              double itemAngle = -getStartTime() * angleStep + (item.getTime() * angleStep) - duration * angleStep - milliAngle;
              if (itemAngle > -35 && itemAngle < 35) {
+                 // Save canvas
                  ctx.save();
 
+                 // Pre-rotate the canvas dependent on the item angle
                  ctx.translate(centerX, centerY);
                  ctx.rotate(itemAngle);
                  ctx.translate(-centerX, -centerY);
 
+                 // Fill item circle with background color
                  ctx.setLineWidth(0.0015 * width);
                  ctx.setFill(getRingBackgroundColor());
                  ctx.fillOval(centerX - itemRadius, middleOriginY - itemRadius, itemDiameter, itemDiameter);
 
+                 // Define item color dependent on current angle
                  Color itemColor;
                  if (itemAngle < -24) {
                      itemColor = getItemColor().darker().darker();
@@ -596,6 +607,7 @@
                      itemColor = getItemColor().darker().darker().darker().darker();
                  }
 
+                 // Draw item extension
                  ctx.setLineCap(StrokeLineCap.ROUND);
                  ctx.setStroke(itemColor);
                  ctx.setFill(itemColor);
@@ -609,9 +621,11 @@
                      ctx.fillText(item.getName(), centerX, middleOriginY + itemTextDistance);
                  }
 
+                 // Draw outer item circle
                  ctx.setStroke(itemColor);
                  ctx.strokeOval(centerX - itemRadius, middleOriginY - itemRadius, itemDiameter, itemDiameter);
 
+                 // Draw inner item circle if item is processed
                  if (getStartTime() + (duration - 1) >= + item.getTime()) {
                      if (!item.isProcessed()) {
                          item.setProcessed(true);
@@ -621,6 +635,7 @@
                      ctx.fillOval(centerX - itemDotRadius, middleOriginY - itemDotRadius, itemDotDiameter, itemDotDiameter);
                  }
 
+                 // Restore canvas for next item
                  ctx.restore();
              }
          });
