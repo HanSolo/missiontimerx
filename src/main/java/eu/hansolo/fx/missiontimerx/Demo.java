@@ -27,6 +27,8 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import java.time.Duration;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 
 
 public class Demo extends Application {
@@ -69,6 +71,31 @@ public class Demo extends Application {
         System.out.println(noOfNodes + " Nodes in SceneGraph");
 
         missionTimerX.start();
+        scene.addEventHandler(KeyEvent.KEY_RELEASED, e -> keyReleased(e));        
+    }
+    /**
+     * Key handler for various keyboard shortcuts
+     * 
+     */    
+    private void keyReleased(KeyEvent e) {
+        if(e.getCode().equals(KeyCode.LEFT)) {
+            missionTimerX.decreaseTimelineSpeed();
+            missionTimerX.resume();
+        }
+        if(e.getCode().equals(KeyCode.RIGHT)) {
+            missionTimerX.increaseTimelineSpeed();
+            missionTimerX.resume();
+        }
+        if(e.getCode().equals(KeyCode.ENTER)) {
+            missionTimerX.resetTimelineSpeed();
+            missionTimerX.resume();
+        }
+        if(e.getCode().equals(KeyCode.SPACE)) {
+            if(missionTimerX.isRunning())
+                missionTimerX.pause();
+            else
+                missionTimerX.resume();
+        }
     }
 
     @Override public void stop() {
