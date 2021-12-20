@@ -63,6 +63,9 @@
      private static final double                   MAXIMUM_WIDTH    = 4096;
      private static final double                   MAXIMUM_HEIGHT   = 4096;
      private static final double                   ASPECT_RATIO     = PREFERRED_HEIGHT / PREFERRED_WIDTH;
+     private static final long                     REALTIME_REDRAW  = 1_000_000l;
+     private static final long                     REALTIME_TIMER   = 1_000_000_000l;
+
      private              double                   width;
      private              double                   height;
      private              Canvas                   canvas;
@@ -121,6 +124,8 @@
      private              long                     seconds;
      private              ListChangeListener<Item> itemListener;
      private              InvalidationListener     sizeListener;
+     private              long                     redrawStepSize;
+     private              long                     timerStepSize;
      private              long                     lastRedrawCall;
      private              long                     lastTimerCall;
      private              double                   milliAngle;
@@ -179,27 +184,29 @@
              redraw();
          };
          this.sizeListener         = o -> resize();
+         this.redrawStepSize       = REALTIME_REDRAW;
+         this.timerStepSize        = REALTIME_TIMER;
          this.lastRedrawCall       = System.nanoTime();
          this.lastTimerCall        = System.nanoTime();
          this.timer                = new AnimationTimer() {
              @Override public void handle(final long now) {
-                 if (now > lastRedrawCall + 1_000_000l) {
-                     milliAngle += angleStep / 100.0;
-                     redraw();
-                     lastRedrawCall = now;
-                 }
-                 if (now > lastTimerCall + 1_000_000_000l) {
-                    long timeSpan = Math.abs((getStartTime() + duration) < 0 ? getStartTime() + duration : (duration + getStartTime()));
-                    days    = (int)TimeUnit.SECONDS.toDays(timeSpan);
-                    hours   = TimeUnit.SECONDS.toHours(timeSpan)   - (days * 24);
-                    minutes = TimeUnit.SECONDS.toMinutes(timeSpan) - (TimeUnit.SECONDS.toHours(timeSpan)   * 60);
-                    seconds = TimeUnit.SECONDS.toSeconds(timeSpan) - (TimeUnit.SECONDS.toMinutes(timeSpan) * 60);
-
-                    duration++;
-                    milliAngle = 0;
-                    //redraw();
-                    lastTimerCall = now;
+                if (now > lastRedrawCall + redrawStepSize) {
+                    milliAngle += angleStep / 100.0;
+                    redraw();
+                    lastRedrawCall = now;
                 }
+                if (now > lastTimerCall + timerStepSize) {
+                   long timeSpan = Math.abs((getStartTime() + duration) < 0 ? getStartTime() + duration : (duration + getStartTime()));
+                   days    = (int)TimeUnit.SECONDS.toDays(timeSpan);
+                   hours   = TimeUnit.SECONDS.toHours(timeSpan)   - (days * 24);
+                   minutes = TimeUnit.SECONDS.toMinutes(timeSpan) - (TimeUnit.SECONDS.toHours(timeSpan)   * 60);
+                   seconds = TimeUnit.SECONDS.toSeconds(timeSpan) - (TimeUnit.SECONDS.toMinutes(timeSpan) * 60);
+
+                   duration++;
+                   milliAngle = 0;
+                   //redraw();
+                   lastTimerCall = now;
+               }
              }
          };
 
@@ -244,6 +251,19 @@
 
      @Override public ObservableList<Node> getChildren() { return super.getChildren(); }
 
+     public void resetTimelineSpeed() {
+         redrawStepSize = REALTIME_REDRAW;
+         timerStepSize = REALTIME_TIMER;
+     }
+     public void increaseTimelineSpeed() {
+        redrawStepSize /= 10;
+        timerStepSize /= 10;
+     }
+     public void decreaseTimelineSpeed() {
+        redrawStepSize *= 10;
+        timerStepSize *= 10;
+     }
+     
      public String getTitle() { return null == title ? _title : title.get(); }
      public void setTitle(final String title) {
          if (null == this.title) {
